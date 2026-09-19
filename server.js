@@ -93,6 +93,40 @@ app.get('/products/:id', (req, res) => {
 })
 
 
+let products = [];
+
+app.post('/products', (req, res) => {
+  const { name, price, category, image } = req.body;
+
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    return res.status(422).json({ error: 'Invalid product data' });
+  }
+
+  if (typeof price !== 'number' || price <= 0) {
+    return res.status(422).json({ error: 'Invalid product data' });
+  }
+
+  if (!category || typeof category !== 'string' || category.trim() === '') {
+    return res.status(422).json({ error: 'Invalid product data' });
+  }
+
+  const exists = products.some(p => p.name === name);
+  if (exists) {
+    return res.status(409).json({ error: 'Conflict' });
+  }
+
+  const newProduct = {
+    id: products.length + 1,
+    name,
+    price,
+    category,
+    image: image || ''
+  };
+
+  products.push(newProduct);
+  res.status(201).json(newProduct);
+});
+
 app.listen(port, () => {
     console.log(`Сервер запущено на http://localhost:${port}`);
     console.log(`Поточна дата: ${getCurrentDay()}, ${getCurrentMonth()} ${getCurrentYear()}`);
